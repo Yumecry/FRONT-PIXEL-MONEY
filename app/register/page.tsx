@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, User, Phone, ArrowRight, Smartphone, Loader2 } from 'lucide-react';
+import { Mail, Lock, IdCard, Phone, ArrowRight, Smartphone, Loader2 } from 'lucide-react';
 import { apiClient } from '../lib/api'; // Asegúrate que la ruta sea correcta
 import { useNotification } from '../contexts/NotificationContext';
 
@@ -12,7 +12,7 @@ export default function RegisterPage() {
   const { showNotification } = useNotification();
   
   const [formData, setFormData] = useState({
-    name: '',
+    dni: '',
     email: '',
     phone_number: '',
     password: ''
@@ -26,6 +26,13 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // El backend exige DNI de 8 dígitos y obtiene el nombre desde RENIEC
+    if (!/^\d{8}$/.test(formData.dni)) {
+        showNotification('El DNI debe tener 8 dígitos', 'warning');
+        setLoading(false);
+        return;
+    }
 
     // Validación simple de celular
     if (formData.phone_number.length !== 9) {
@@ -63,19 +70,21 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Nombre */}
+          {/* DNI */}
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <User className="h-5 w-5 text-slate-500" />
+              <IdCard className="h-5 w-5 text-slate-500" />
             </div>
             <input
-              name="name"
+              name="dni"
               type="text"
+              inputMode="numeric"
               required
-              placeholder="Nombre Completo"
+              placeholder="DNI"
               className="block w-full pl-11 pr-4 py-3.5 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={formData.name}
+              value={formData.dni}
               onChange={handleChange}
+              maxLength={8}
             />
           </div>
 
